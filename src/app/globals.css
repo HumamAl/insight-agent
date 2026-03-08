@@ -54,8 +54,8 @@
   --color-sidebar-ring: var(--sidebar-ring);
 
   /* Fonts */
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-ibm-plex-sans);
+  --font-mono: var(--font-ibm-plex-mono);
 
   /* Radius scale — derived from single --radius token */
   --radius-sm: calc(var(--radius) - 4px);
@@ -77,6 +77,18 @@
   @keyframes accordion-up {
     from { height: var(--radix-accordion-content-height); }
     to { height: 0; }
+  }
+  @keyframes fade-up-in {
+    from { opacity: 0; transform: translateY(5px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes slowglow {
+    0%, 100% { opacity: 0.7; }
+    50% { opacity: 1; }
+  }
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
   }
 
   /* Frame dimensions — mapped to Tailwind utilities */
@@ -106,13 +118,13 @@
   --surface-active: oklch(0.94 0 0);
 
   /* ── Primary Color ───────────────────────────────────────────
-     !! OVERRIDE REQUIRED — Layout Builder must replace --primary and
-        --primary-h with domain-appropriate oklch values.
-        See the Creative Brief's colorDirection for the target color.
-        QA rejects builds where --primary stays oklch(0.205 0 0). !! */
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --primary-h: 270; /* Integer hue extracted from --primary */
+     AESTHETIC: data-dense / DOMAIN: AI / LLM Analytics
+     Creative rationale: Bloomberg terminal amber-gold on near-black.
+     Amber-gold (#80 hue) on near-black background — precision tooling
+     for analysts who treat latency in ms and tokens in millions.      */
+  --primary: oklch(0.72 0.18 80);
+  --primary-foreground: oklch(0.08 0.02 80);
+  --primary-h: 80; /* Integer hue extracted from --primary */
 
   /* ── Derived Color Tokens ────────────────────────────────── */
   --section-dark: oklch(0.10 0.02 var(--primary-h));
@@ -608,39 +620,85 @@
 }
 
 /* ── 10. Data Dense / Command Center ─────────────────────────
+   AESTHETIC: data-dense / DOMAIN: AI / LLM Analytics
+   Bloomberg terminal amber-gold on near-black. IBM Plex type.
    Compact, monospace metrics, maximum information per pixel.
-   Best for: DevOps, analytics/BI, financial trading, monitoring. */
+   Creative rationale: LLM trace monitors need every pixel for data.
+   Amber-gold (#80 hue) evokes precision instrumentation — serious
+   tooling for engineers who read latency in ms, tokens in millions. */
 [data-theme="data-dense"] {
+  /* Color override: near-black background, amber-gold primary */
   --radius: 0.25rem;
-  --background: oklch(0.99 0 0);
-  --card: oklch(1 0 0);
-  --border: oklch(0.86 0 0);
-  --muted: oklch(0.96 0 0);
-  --sidebar: oklch(0.975 0 0);
-  --sidebar-bg: oklch(0.975 0 0);
-  --sidebar-border: oklch(0.86 0 0);
-  --surface-hover: oklch(0.94 0 0);
-  --surface-active: oklch(0.91 0 0);
+  --background: oklch(0.08 0.02 80);
+  --foreground: oklch(0.93 0.01 80);
+  --card: oklch(0.12 0.02 80);
+  --card-foreground: oklch(0.93 0.01 80);
+  --popover: oklch(0.12 0.02 80);
+  --popover-foreground: oklch(0.93 0.01 80);
+  --primary: oklch(0.72 0.18 80);
+  --primary-foreground: oklch(0.08 0.02 80);
+  --primary-h: 80;
+  --accent: oklch(0.60 0.14 70);
+  --accent-foreground: oklch(0.93 0.01 80);
+  --secondary: oklch(0.16 0.02 80);
+  --secondary-foreground: oklch(0.93 0.01 80);
+  --muted: oklch(0.16 0.02 80);
+  --muted-foreground: oklch(0.58 0.02 80);
+  --border: oklch(0.22 0.02 80);
+  --input: oklch(0.22 0.02 80);
+  --ring: oklch(0.72 0.18 80);
+  /* Semantic colors */
+  --success: oklch(0.62 0.19 145);
+  --success-foreground: oklch(0.985 0 0);
+  --warning: oklch(0.75 0.18 85);
+  --warning-foreground: oklch(0.08 0.02 80);
+  /* Sidebar: dark near-black with amber undertone */
+  --sidebar: oklch(0.10 0.02 80);
+  --sidebar-foreground: oklch(0.85 0.01 80);
+  --sidebar-primary: oklch(0.72 0.18 80);
+  --sidebar-primary-foreground: oklch(0.08 0.02 80);
+  --sidebar-accent: oklch(0.16 0.02 80);
+  --sidebar-accent-foreground: oklch(0.85 0.01 80);
+  --sidebar-border: oklch(0.20 0.02 80);
+  --sidebar-ring: oklch(0.72 0.18 80);
+  --sidebar-bg: oklch(0.10 0.02 80);
+  /* Section dark — used by Challenges and Proposal builders */
+  --section-dark: oklch(0.06 0.02 80);
+  /* Surface states */
+  --surface-hover: oklch(0.16 0.02 80);
+  --surface-active: oklch(0.20 0.02 80);
+  /* Chart colors — harmonized to amber/gold hue range */
+  --chart-1: oklch(0.72 0.18 80);   /* amber-gold (primary) */
+  --chart-2: oklch(0.65 0.16 110);  /* yellow-green +30 */
+  --chart-3: oklch(0.60 0.14 50);   /* orange-amber -30 */
+  --chart-4: oklch(0.55 0.12 260);  /* cool blue (complementary) */
+  --chart-5: oklch(0.68 0.15 30);   /* warm red-orange */
+  /* Card treatment */
   --card-border-width: 1px;
-  --card-shadow: none;
-  --card-shadow-hover: 0 1px 4px oklch(0 0 0 / 0.08);
+  --card-shadow: 0 0 0 1px oklch(0.72 0.18 80 / 0.08);
+  --card-shadow-hover: 0 0 0 1px oklch(0.72 0.18 80 / 0.20), 0 4px 12px oklch(0 0 0 / 0.30);
   --card-hover-transform: none;
+  /* Compact density — command-center layout */
   --page-padding: 0.75rem;
-  --content-padding: 0.75rem;
-  --card-padding: 0.75rem;
-  --card-padding-sm: 0.5rem;
-  --grid-gap: 0.5rem;
-  --section-gap: 0.75rem;
-  --nav-item-py: 0.3125rem;
-  --sidebar-width: 13rem;
+  --content-padding: 1rem;
+  --card-padding: 1rem;
+  --card-padding-sm: 0.75rem;
+  --grid-gap: 0.75rem;
+  --section-gap: 1rem;
+  --nav-item-py: 0.375rem;
+  --sidebar-width: 14rem;
   --header-height: 2.75rem;
+  /* Typography — IBM Plex for command-center precision */
   --heading-weight: 600;
   --heading-tracking: -0.01em;
   --body-leading: 1.4;
-  --dur-fast: 60ms;
-  --dur-normal: 100ms;
+  /* Motion: snappy (80-120ms ease-out) */
+  --dur-fast: 80ms;
+  --dur-normal: 120ms;
   --ease-snappy: cubic-bezier(0.25, 0, 0.25, 1);
   --t-interactive: var(--dur-fast) var(--ease-snappy);
+  /* Tab bar tint — warm dark */
+  --tab-bar-bg: oklch(0.09 0.02 80);
 }
 
 /* ── 11. SaaS Modern / Gradient-Optimistic ───────────────────
@@ -940,6 +998,12 @@
   .aesthetic-transition {
     transition-duration: var(--dur-normal);
     transition-timing-function: var(--ease-snappy);
+  }
+
+  /* ── Animation utilities ─────────────────────────────────────*/
+  .animate-fade-up-in {
+    animation-name: fade-up-in;
+    animation-timing-function: ease-out;
   }
 
   /* ── .stats-grid ─────────────────────────────────────────────

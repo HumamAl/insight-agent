@@ -1,12 +1,944 @@
-// App-specific mock data goes here
-// Replace with domain-specific data for each proposal app
-//
-// Guidelines:
-// - 10-20 items minimum per dataset
-// - Realistic names, dates, amounts
-// - Include edge cases (overdue, high-priority, empty states)
-// - All data typed in lib/types.ts
+import type {
+  Query,
+  Pipeline,
+  DataSource,
+  Trace,
+  Insight,
+  DashboardStats,
+  QueryVolumeDataPoint,
+  GroundednessDataPoint,
+  LatencyDistributionPoint,
+  CostByPipelinePoint,
+  GroundednessByModelPoint,
+} from "@/lib/types";
 
-export const mockData = {
-  // TODO: Replace with app-specific data
+// ─── Dashboard Stats ────────────────────────────────────────────────────────
+
+export const dashboardStats: DashboardStats = {
+  totalQueries: 14_827,
+  queriesChange: 11.4,
+  avgGroundedness: 83.7,
+  groundednessChange: 2.1,
+  avgLatencyMs: 2_341,
+  latencyChange: -187,           // 187ms faster WoW — improvement
+  hallucinationRate: 3.2,
+  hallucinationRateChange: -0.6, // fewer hallucinations
+  totalCostUsd: 312.48,
+  costChange: 8.7,               // cost up due to volume growth
+  activePipelines: 7,
 };
+
+// ─── Pipelines ───────────────────────────────────────────────────────────────
+
+export const pipelines: Pipeline[] = [
+  {
+    id: "pip_x3n7q",
+    name: "sales-insights-agent",
+    displayName: "Sales Insights Agent",
+    description: "Answers natural-language questions about pipeline health, deal velocity, and forecast accuracy using CRM and warehouse data.",
+    dataSourceIds: ["ds_f4p8w", "ds_r2m6k"],
+    modelId: "gpt-4o",
+    topK: 8,
+    chunkSize: 512,
+    status: "active",
+    totalQueries: 4_218,
+    avgLatencyMs: 2_104,
+    avgGroundedness: 87.3,
+    successRate: 98.1,
+    createdAt: "2025-10-14T09:12:00Z",
+    lastActiveAt: "2026-03-07T16:44:21Z",
+  },
+  {
+    id: "pip_b7w2s",
+    name: "contract-review-rag",
+    displayName: "Contract Review RAG",
+    description: "Extracts key clauses, renewal dates, and risk flags from uploaded contract PDFs using semantic chunking.",
+    dataSourceIds: ["ds_c9q1n", "ds_h5t3x"],
+    modelId: "claude-3.5-sonnet",
+    topK: 12,
+    chunkSize: 1024,
+    status: "active",
+    totalQueries: 1_847,
+    avgLatencyMs: 3_412,
+    avgGroundedness: 91.8,
+    successRate: 97.4,
+    createdAt: "2025-11-03T14:30:00Z",
+    lastActiveAt: "2026-03-07T14:21:08Z",
+  },
+  {
+    id: "pip_m4j9p",
+    name: "customer-churn-analyst",
+    displayName: "Customer Churn Analyst",
+    description: "Synthesizes product usage signals, support tickets, and NPS responses to explain churn drivers and at-risk accounts.",
+    dataSourceIds: ["ds_r2m6k", "ds_v7d2l", "ds_k8f1q"],
+    modelId: "gpt-4o",
+    topK: 10,
+    chunkSize: 512,
+    status: "active",
+    totalQueries: 2_934,
+    avgLatencyMs: 2_847,
+    avgGroundedness: 84.2,
+    successRate: 96.7,
+    createdAt: "2025-11-18T10:00:00Z",
+    lastActiveAt: "2026-03-07T15:58:43Z",
+  },
+  {
+    id: "pip_z6r4t",
+    name: "compliance-doc-scanner",
+    displayName: "Compliance Doc Scanner",
+    description: "Searches regulatory filings, policy documents, and audit trails to answer compliance queries against SOC 2 and GDPR requirements.",
+    dataSourceIds: ["ds_h5t3x", "ds_c9q1n"],
+    modelId: "claude-3.5-sonnet",
+    topK: 15,
+    chunkSize: 768,
+    status: "active",
+    totalQueries: 1_102,
+    avgLatencyMs: 4_103,
+    avgGroundedness: 93.1,
+    successRate: 99.2,
+    createdAt: "2025-12-01T08:45:00Z",
+    lastActiveAt: "2026-03-06T11:30:00Z",
+  },
+  {
+    id: "pip_e1q8n",
+    name: "hr-policy-qa-agent",
+    displayName: "HR Policy Q&A Agent",
+    description: "Answers employee questions about PTO, benefits, and onboarding procedures from the internal HR wiki and policy PDFs.",
+    dataSourceIds: ["ds_w3e7b", "ds_h5t3x"],
+    modelId: "gpt-4o-mini",
+    topK: 6,
+    chunkSize: 512,
+    status: "active",
+    totalQueries: 3_471,
+    avgLatencyMs: 1_284,
+    avgGroundedness: 79.4,
+    successRate: 94.8,
+    createdAt: "2025-09-22T11:20:00Z",
+    lastActiveAt: "2026-03-07T17:03:55Z",
+  },
+  {
+    id: "pip_a9k5v",
+    name: "financial-report-summarizer",
+    displayName: "Financial Report Summarizer",
+    description: "Extracts key metrics and narrative summaries from quarterly earnings reports and financial statements.",
+    dataSourceIds: ["ds_f4p8w", "ds_p2x9m"],
+    modelId: "claude-3.5-sonnet",
+    topK: 10,
+    chunkSize: 1024,
+    status: "active",
+    totalQueries: 887,
+    avgLatencyMs: 3_821,
+    avgGroundedness: 89.7,
+    successRate: 98.7,
+    createdAt: "2026-01-08T13:00:00Z",
+    lastActiveAt: "2026-03-05T09:14:00Z",
+  },
+  {
+    id: "pip_t2n6w",
+    name: "support-ticket-classifier",
+    displayName: "Support Ticket Classifier",
+    description: "Classifies inbound support tickets by urgency and product area, then suggests resolution steps from the knowledge base.",
+    dataSourceIds: ["ds_k8f1q", "ds_v7d2l"],
+    modelId: "claude-3-haiku",
+    topK: 5,
+    chunkSize: 256,
+    status: "active",
+    totalQueries: 5_812,
+    avgLatencyMs: 924,
+    avgGroundedness: 76.8,
+    successRate: 97.9,
+    createdAt: "2025-08-30T09:00:00Z",
+    lastActiveAt: "2026-03-07T17:41:12Z",
+  },
+  {
+    id: "pip_l5d3r",
+    name: "inventory-forecast-pipeline",
+    displayName: "Inventory Forecast Pipeline",
+    description: "Combines warehouse data with historical order velocity to answer demand planning questions.",
+    dataSourceIds: ["ds_r2m6k"],
+    modelId: "gpt-4o-mini",
+    topK: 8,
+    chunkSize: 512,
+    status: "degraded",   // edge case: degraded pipeline
+    totalQueries: 412,
+    avgLatencyMs: 5_840,  // elevated latency
+    avgGroundedness: 71.3, // below threshold
+    successRate: 89.4,    // low success rate edge case (<93%)
+    createdAt: "2025-12-20T15:00:00Z",
+    lastActiveAt: "2026-03-04T08:12:00Z",
+  },
+  {
+    id: "pip_c8m1y",
+    name: "market-trends-researcher",
+    displayName: "Market Trends Researcher",
+    description: "Synthesizes competitive intelligence and analyst reports to summarize market movements for a given industry.",
+    dataSourceIds: ["ds_p2x9m", "ds_g6j4h"],
+    modelId: "gpt-4o",
+    topK: 12,
+    chunkSize: 768,
+    status: "draft",      // draft pipeline — not yet deployed
+    totalQueries: 0,
+    avgLatencyMs: 0,
+    avgGroundedness: 0,
+    successRate: 0,
+    createdAt: "2026-02-28T10:00:00Z",
+    lastActiveAt: "2026-02-28T10:00:00Z",
+  },
+];
+
+// ─── Data Sources ─────────────────────────────────────────────────────────────
+
+export const dataSources: DataSource[] = [
+  {
+    id: "ds_f4p8w",
+    name: "prod-snowflake-warehouse",
+    displayName: "Production Snowflake Warehouse",
+    type: "snowflake",
+    status: "Connected",
+    sizeGb: 1_847.3,
+    chunkCount: 284_912,
+    embeddingFreshnessHours: 6,
+    lastSyncAt: "2026-03-07T12:00:00Z",
+    indexingStatus: "indexed",
+    owner: "Data Platform Team",
+  },
+  {
+    id: "ds_c9q1n",
+    name: "s3-contracts-bucket",
+    displayName: "S3 Contracts Bucket",
+    type: "s3",
+    status: "Connected",
+    sizeGb: 42.7,
+    chunkCount: 18_340,
+    embeddingFreshnessHours: 14,
+    lastSyncAt: "2026-03-07T04:00:00Z",
+    indexingStatus: "indexed",
+    owner: "Legal & Compliance",
+  },
+  {
+    id: "ds_r2m6k",
+    name: "customer-crm-export",
+    displayName: "Customer CRM Export",
+    type: "postgres",
+    status: "Connected",
+    sizeGb: 8.4,
+    chunkCount: 47_820,
+    embeddingFreshnessHours: 2,
+    lastSyncAt: "2026-03-07T15:00:00Z",
+    indexingStatus: "indexed",
+    owner: "Revenue Operations",
+  },
+  {
+    id: "ds_h5t3x",
+    name: "hr-policy-docs",
+    displayName: "HR Policy Documents",
+    type: "pdf",
+    status: "Connected",
+    sizeGb: 1.2,
+    chunkCount: 4_218,
+    embeddingFreshnessHours: 312,   // >72h — edge case: stale
+    lastSyncAt: "2026-02-22T09:00:00Z",
+    indexingStatus: "stale",
+    owner: "People Operations",
+  },
+  {
+    id: "ds_v7d2l",
+    name: "zendesk-tickets-feed",
+    displayName: "Zendesk Tickets Feed",
+    type: "api",
+    status: "Syncing",
+    sizeGb: 14.9,
+    chunkCount: 91_034,
+    embeddingFreshnessHours: 1,
+    lastSyncAt: "2026-03-07T17:30:00Z",
+    indexingStatus: "indexing",
+    owner: "Customer Success",
+  },
+  {
+    id: "ds_k8f1q",
+    name: "internal-wiki",
+    displayName: "Internal Product Wiki",
+    type: "sharepoint",
+    status: "Connected",
+    sizeGb: 3.8,
+    chunkCount: 12_480,
+    embeddingFreshnessHours: 48,
+    lastSyncAt: "2026-03-05T18:00:00Z",
+    indexingStatus: "indexed",
+    owner: "Product & Engineering",
+  },
+  {
+    id: "ds_w3e7b",
+    name: "shopify-orders-db",
+    displayName: "Shopify Orders Database",
+    type: "postgres",
+    status: "Degraded",    // edge case: degraded connector
+    sizeGb: 62.1,
+    chunkCount: 203_417,
+    embeddingFreshnessHours: 98,   // stale
+    lastSyncAt: "2026-03-03T22:00:00Z",
+    indexingStatus: "stale",
+    owner: "E-Commerce Team",
+  },
+  {
+    id: "ds_p2x9m",
+    name: "financial-statements-2024",
+    displayName: "Financial Statements 2024",
+    type: "pdf",
+    status: "Connected",
+    sizeGb: 0.4,
+    chunkCount: 1_847,
+    embeddingFreshnessHours: 720,  // 30 days — stale for infrequently updated docs
+    lastSyncAt: "2026-02-05T10:00:00Z",
+    indexingStatus: "indexed",
+    owner: "Finance",
+  },
+  {
+    id: "ds_g6j4h",
+    name: "google-analytics-export",
+    displayName: "Google Analytics Export",
+    type: "bigquery",
+    status: "Disconnected",  // edge case: disconnected source
+    sizeGb: 28.3,
+    chunkCount: 0,
+    embeddingFreshnessHours: 9999,
+    lastSyncAt: "2026-01-14T08:00:00Z",
+    indexingStatus: "failed",
+    owner: "Marketing Analytics",
+  },
+  {
+    id: "ds_j1m5p",
+    name: "product-catalog-v3",
+    displayName: "Product Catalog v3",
+    type: "s3",
+    status: "Connected",
+    sizeGb: 7.6,
+    chunkCount: 31_204,
+    embeddingFreshnessHours: 22,
+    lastSyncAt: "2026-03-06T20:00:00Z",
+    indexingStatus: "indexed",
+    owner: "Product Management",
+  },
+];
+
+// ─── Queries ──────────────────────────────────────────────────────────────────
+
+export const queries: Query[] = [
+  {
+    id: "qry_8k2mp",
+    text: "What are the top 5 reasons deals stalled in Q4 2025 by deal stage?",
+    pipelineId: "pip_x3n7q",
+    agentName: "Sales Insights Agent",
+    status: "Completed",
+    latencyMs: 2_318,
+    inputTokens: 1_847,
+    outputTokens: 412,
+    costUsd: 0.0341,
+    groundednessScore: 91,
+    answerRelevance: 88,
+    contextRelevance: 86,
+    chunksRetrieved: 8,
+    userId: "usr_priya",
+    createdAt: "2026-03-07T09:14:22Z",
+  },
+  {
+    id: "qry_3x7wn",
+    text: "Summarize renewal risk for accounts in the EMEA segment with MRR > $10k.",
+    pipelineId: "pip_m4j9p",
+    agentName: "Customer Churn Analyst",
+    status: "Completed",
+    latencyMs: 3_102,
+    inputTokens: 2_241,
+    outputTokens: 587,
+    costUsd: 0.0472,
+    groundednessScore: 85,
+    answerRelevance: 83,
+    contextRelevance: 79,
+    chunksRetrieved: 10,
+    userId: "usr_marcus",
+    createdAt: "2026-03-07T10:47:08Z",
+  },
+  {
+    id: "qry_5r1tz",
+    text: "Does our MSA with Northfield Health Systems include an auto-renewal clause?",
+    pipelineId: "pip_b7w2s",
+    agentName: "Contract Review RAG",
+    status: "Completed",
+    latencyMs: 4_021,
+    inputTokens: 3_104,
+    outputTokens: 298,
+    costUsd: 0.0814,
+    groundednessScore: 94,
+    answerRelevance: 96,
+    contextRelevance: 92,
+    chunksRetrieved: 12,
+    userId: "usr_sofia",
+    createdAt: "2026-03-07T11:02:40Z",
+  },
+  {
+    id: "qry_9p4qv",
+    text: "What is the company's policy on remote work for employees based outside the US?",
+    pipelineId: "pip_e1q8n",
+    agentName: "HR Policy Q&A Agent",
+    status: "Hallucination Detected",   // edge case
+    latencyMs: 1_184,
+    inputTokens: 824,
+    outputTokens: 341,
+    costUsd: 0.0038,
+    groundednessScore: 47,   // below 65 threshold
+    answerRelevance: 52,
+    contextRelevance: 44,
+    chunksRetrieved: 6,
+    userId: "usr_anika",
+    createdAt: "2026-03-07T11:38:17Z",
+    errorMessage: "Response not supported by retrieved context — answer contained unsupported claims about visa sponsorship eligibility.",
+  },
+  {
+    id: "qry_2c8jb",
+    text: "What's our GDPR data retention requirement for EU customer records?",
+    pipelineId: "pip_z6r4t",
+    agentName: "Compliance Doc Scanner",
+    status: "Completed",
+    latencyMs: 3_847,
+    inputTokens: 2_018,
+    outputTokens: 476,
+    costUsd: 0.0621,
+    groundednessScore: 96,
+    answerRelevance: 94,
+    contextRelevance: 91,
+    chunksRetrieved: 15,
+    userId: "usr_derek",
+    createdAt: "2026-03-07T12:14:55Z",
+  },
+  {
+    id: "qry_7m3dh",
+    text: "Which support ticket categories had the highest reopen rate in the last 30 days?",
+    pipelineId: "pip_t2n6w",
+    agentName: "Support Ticket Classifier",
+    status: "Completed",
+    latencyMs: 887,
+    inputTokens: 1_204,
+    outputTokens: 213,
+    costUsd: 0.0029,
+    groundednessScore: 81,
+    answerRelevance: 84,
+    contextRelevance: 77,
+    chunksRetrieved: 5,
+    userId: "usr_leila",
+    createdAt: "2026-03-07T12:41:30Z",
+  },
+  {
+    id: "qry_4n6sw",
+    text: "Summarize the key takeaways from the Q3 2025 earnings call transcript.",
+    pipelineId: "pip_a9k5v",
+    agentName: "Financial Report Summarizer",
+    status: "Completed",
+    latencyMs: 5_204,
+    inputTokens: 4_812,
+    outputTokens: 824,
+    costUsd: 0.1384,
+    groundednessScore: 92,
+    answerRelevance: 90,
+    contextRelevance: 88,
+    chunksRetrieved: 10,
+    userId: "usr_noah",
+    createdAt: "2026-03-07T13:05:19Z",
+  },
+  {
+    id: "qry_6f2yx",
+    text: "What are current inventory levels for SKUs with reorder point breaches?",
+    pipelineId: "pip_l5d3r",
+    agentName: "Inventory Forecast Pipeline",
+    status: "Low Confidence",   // edge case: degraded pipeline -> low confidence
+    latencyMs: 7_412,           // edge case: extreme latency (>7s)
+    inputTokens: 1_418,
+    outputTokens: 284,
+    costUsd: 0.0218,
+    groundednessScore: 63,      // below 65 threshold -> Low Confidence
+    answerRelevance: 58,
+    contextRelevance: 61,
+    chunksRetrieved: 8,
+    userId: "usr_james",
+    createdAt: "2026-03-07T13:22:47Z",
+  },
+  {
+    id: "qry_1b9aq",
+    text: "How many contracts are expiring in the next 90 days with no renewal flag set?",
+    pipelineId: "pip_b7w2s",
+    agentName: "Contract Review RAG",
+    status: "Completed",
+    latencyMs: 3_341,
+    inputTokens: 2_714,
+    outputTokens: 318,
+    costUsd: 0.0729,
+    groundednessScore: 89,
+    answerRelevance: 91,
+    contextRelevance: 87,
+    chunksRetrieved: 12,
+    userId: "usr_sofia",
+    createdAt: "2026-03-07T14:08:34Z",
+  },
+  {
+    id: "qry_0w4mk",
+    text: "What's the average deal cycle for enterprise accounts closed in the last quarter?",
+    pipelineId: "pip_x3n7q",
+    agentName: "Sales Insights Agent",
+    status: "Completed",
+    latencyMs: 1_924,
+    inputTokens: 1_614,
+    outputTokens: 288,
+    costUsd: 0.0287,
+    groundednessScore: 88,
+    answerRelevance: 86,
+    contextRelevance: 84,
+    chunksRetrieved: 8,
+    userId: "usr_priya",
+    createdAt: "2026-03-06T15:30:11Z",
+  },
+  {
+    id: "qry_d5j3r",
+    text: "Identify accounts showing three or more churn signals in the past 14 days.",
+    pipelineId: "pip_m4j9p",
+    agentName: "Customer Churn Analyst",
+    status: "Completed",
+    latencyMs: 2_741,
+    inputTokens: 2_084,
+    outputTokens: 542,
+    costUsd: 0.0421,
+    groundednessScore: 82,
+    answerRelevance: 85,
+    contextRelevance: 80,
+    chunksRetrieved: 10,
+    userId: "usr_marcus",
+    createdAt: "2026-03-06T16:14:28Z",
+  },
+  {
+    id: "qry_h8c1n",
+    text: "What is the parental leave entitlement for full-time employees hired after Jan 2025?",
+    pipelineId: "pip_e1q8n",
+    agentName: "HR Policy Q&A Agent",
+    status: "Completed",
+    latencyMs: 1_048,
+    inputTokens: 741,
+    outputTokens: 194,
+    costUsd: 0.0022,
+    groundednessScore: 84,
+    answerRelevance: 88,
+    contextRelevance: 82,
+    chunksRetrieved: 6,
+    userId: "usr_anika",
+    createdAt: "2026-03-06T17:02:04Z",
+  },
+  {
+    id: "qry_k2v7p",
+    text: "Classify this ticket: 'My dashboard is loading but the charts show no data since yesterday.'",
+    pipelineId: "pip_t2n6w",
+    agentName: "Support Ticket Classifier",
+    status: "Completed",
+    latencyMs: 743,
+    inputTokens: 984,
+    outputTokens: 147,
+    costUsd: 0.0018,
+    groundednessScore: 78,
+    answerRelevance: 81,
+    contextRelevance: 74,
+    chunksRetrieved: 5,
+    userId: "usr_leila",
+    createdAt: "2026-03-06T08:47:52Z",
+  },
+  {
+    id: "qry_r4e9s",
+    text: "What are the SOC 2 Type II audit findings related to access control from 2024?",
+    pipelineId: "pip_z6r4t",
+    agentName: "Compliance Doc Scanner",
+    status: "Completed",
+    latencyMs: 4_381,
+    inputTokens: 2_804,
+    outputTokens: 634,
+    costUsd: 0.0882,
+    groundednessScore: 97,
+    answerRelevance: 95,
+    contextRelevance: 94,
+    chunksRetrieved: 15,
+    userId: "usr_derek",
+    createdAt: "2026-03-05T10:22:18Z",
+  },
+  {
+    id: "qry_g7t4b",
+    text: "Which EMEA accounts by ARR are in the 'at-risk' cohort per the Q1 health score model?",
+    pipelineId: "pip_m4j9p",
+    agentName: "Customer Churn Analyst",
+    status: "Failed",     // edge case: failed query
+    latencyMs: 8_204,
+    inputTokens: 2_418,
+    outputTokens: 0,
+    costUsd: 0.0312,
+    groundednessScore: 0,
+    answerRelevance: 0,
+    contextRelevance: 0,
+    chunksRetrieved: 3,
+    userId: "usr_marcus",
+    createdAt: "2026-03-05T11:41:07Z",
+    errorMessage: "Context retrieval failed — vector index for customer-crm-export returned empty result set. Possible embedding staleness.",
+  },
+  {
+    id: "qry_l0w3c",
+    text: "Summarize all indemnification clauses across contracts with Cascade Logistics Inc.",
+    pipelineId: "pip_b7w2s",
+    agentName: "Contract Review RAG",
+    status: "Completed",
+    latencyMs: 4_847,
+    inputTokens: 3_812,
+    outputTokens: 714,
+    costUsd: 0.1041,
+    groundednessScore: 90,
+    answerRelevance: 92,
+    contextRelevance: 88,
+    chunksRetrieved: 12,
+    userId: "usr_sofia",
+    createdAt: "2026-03-04T14:18:33Z",
+  },
+  {
+    id: "qry_f3n2e",
+    text: "What is the current headcount approved for the data engineering org?",
+    pipelineId: "pip_e1q8n",
+    agentName: "HR Policy Q&A Agent",
+    status: "Hallucination Detected",   // second hallucination edge case
+    latencyMs: 1_204,
+    inputTokens: 918,
+    outputTokens: 284,
+    costUsd: 0.0041,
+    groundednessScore: 58,    // below 65 threshold
+    answerRelevance: 49,
+    contextRelevance: 52,
+    chunksRetrieved: 6,
+    userId: "usr_noah",
+    createdAt: "2026-03-04T09:07:41Z",
+    errorMessage: "Answer included specific headcount figures (42 approved FTEs) not found in any retrieved chunk — likely confabulation.",
+  },
+  {
+    id: "qry_s9b6r",
+    text: "Which product lines drove the most revenue growth YoY in the 2024 annual report?",
+    pipelineId: "pip_a9k5v",
+    agentName: "Financial Report Summarizer",
+    status: "Completed",
+    latencyMs: 4_102,
+    inputTokens: 3_947,
+    outputTokens: 584,
+    costUsd: 0.1087,
+    groundednessScore: 93,
+    answerRelevance: 91,
+    contextRelevance: 89,
+    chunksRetrieved: 10,
+    userId: "usr_james",
+    createdAt: "2026-03-03T15:44:22Z",
+  },
+  {
+    id: "qry_e4v8j",
+    text: "List all open support tickets related to SSO integration failures, priority P1 or P2.",
+    pipelineId: "pip_t2n6w",
+    agentName: "Support Ticket Classifier",
+    status: "Rate Limited",   // edge case: rate limit
+    latencyMs: 214,
+    inputTokens: 0,
+    outputTokens: 0,
+    costUsd: 0.0,
+    groundednessScore: 0,
+    answerRelevance: 0,
+    contextRelevance: 0,
+    chunksRetrieved: 0,
+    userId: "usr_leila",
+    createdAt: "2026-03-03T14:22:09Z",
+    errorMessage: "Request rate limit exceeded for claude-3-haiku — retry after 60 seconds.",
+  },
+  {
+    id: "qry_n1x5q",
+    text: "What's the forecasted reorder volume for SKU-2918 over the next 8 weeks?",
+    pipelineId: "pip_l5d3r",
+    agentName: "Inventory Forecast Pipeline",
+    status: "Running",   // edge case: in-flight query
+    latencyMs: 0,
+    inputTokens: 1_104,
+    outputTokens: 0,
+    costUsd: 0.0,
+    groundednessScore: 0,
+    answerRelevance: 0,
+    contextRelevance: 0,
+    chunksRetrieved: 0,
+    userId: "usr_james",
+    createdAt: "2026-03-07T17:44:00Z",
+  },
+  {
+    id: "qry_t6c2w",
+    text: "What are our approved legal entities and tax registration numbers in the EU?",
+    pipelineId: "pip_z6r4t",
+    agentName: "Compliance Doc Scanner",
+    status: "Completed",
+    latencyMs: 3_714,
+    inputTokens: 1_847,
+    outputTokens: 412,
+    costUsd: 0.0574,
+    groundednessScore: 94,
+    answerRelevance: 93,
+    contextRelevance: 91,
+    chunksRetrieved: 15,
+    userId: "usr_derek",
+    createdAt: "2026-03-02T10:14:07Z",
+  },
+];
+
+// ─── Traces ───────────────────────────────────────────────────────────────────
+
+export const traces: Trace[] = [
+  {
+    id: "trc_9w1xz",
+    queryId: "qry_8k2mp",
+    totalDurationMs: 2_318,
+    spans: [
+      { name: "embed-query", startMs: 0, durationMs: 48, inputTokens: 24 },
+      { name: "vector-search", startMs: 48, durationMs: 312 },
+      { name: "rerank", startMs: 360, durationMs: 184 },
+      { name: "generate-response", startMs: 544, durationMs: 1_614, inputTokens: 1_847, outputTokens: 412 },
+      { name: "validate-groundedness", startMs: 2_158, durationMs: 160 },
+    ],
+  },
+  {
+    id: "trc_2m4pk",
+    queryId: "qry_5r1tz",
+    totalDurationMs: 4_021,
+    spans: [
+      { name: "embed-query", startMs: 0, durationMs: 61 },
+      { name: "vector-search", startMs: 61, durationMs: 428 },
+      { name: "rerank", startMs: 489, durationMs: 247 },
+      { name: "generate-response", startMs: 736, durationMs: 3_041, inputTokens: 3_104, outputTokens: 298 },
+      { name: "validate-groundedness", startMs: 3_777, durationMs: 244 },
+    ],
+  },
+  {
+    id: "trc_7r3bh",
+    queryId: "qry_4n6sw",
+    totalDurationMs: 5_204,
+    spans: [
+      { name: "embed-query", startMs: 0, durationMs: 54 },
+      { name: "vector-search", startMs: 54, durationMs: 381 },
+      { name: "rerank", startMs: 435, durationMs: 312 },
+      { name: "generate-response", startMs: 747, durationMs: 4_214, inputTokens: 4_812, outputTokens: 824 },
+      { name: "validate-groundedness", startMs: 4_961, durationMs: 243 },
+    ],
+  },
+  {
+    id: "trc_5k8ns",
+    queryId: "qry_6f2yx",
+    totalDurationMs: 7_412,
+    spans: [
+      { name: "embed-query", startMs: 0, durationMs: 74 },
+      { name: "vector-search", startMs: 74, durationMs: 2_841 },  // extreme vector search latency
+      { name: "rerank", startMs: 2_915, durationMs: 418 },
+      { name: "generate-response", startMs: 3_333, durationMs: 3_814, inputTokens: 1_418, outputTokens: 284 },
+      { name: "validate-groundedness", startMs: 7_147, durationMs: 265 },
+    ],
+  },
+  {
+    id: "trc_4w2qy",
+    queryId: "qry_2c8jb",
+    totalDurationMs: 3_847,
+    spans: [
+      { name: "embed-query", startMs: 0, durationMs: 52 },
+      { name: "vector-search", startMs: 52, durationMs: 494 },
+      { name: "rerank", startMs: 546, durationMs: 218 },
+      { name: "generate-response", startMs: 764, durationMs: 2_847, inputTokens: 2_018, outputTokens: 476 },
+      { name: "validate-groundedness", startMs: 3_611, durationMs: 236 },
+    ],
+  },
+  {
+    id: "trc_1v9pm",
+    queryId: "qry_7m3dh",
+    totalDurationMs: 887,
+    spans: [
+      { name: "embed-query", startMs: 0, durationMs: 31 },
+      { name: "vector-search", startMs: 31, durationMs: 147 },
+      { name: "rerank", startMs: 178, durationMs: 84 },
+      { name: "generate-response", startMs: 262, durationMs: 581, inputTokens: 1_204, outputTokens: 213 },
+      { name: "validate-groundedness", startMs: 843, durationMs: 44 },
+    ],
+  },
+];
+
+// ─── Insights ─────────────────────────────────────────────────────────────────
+
+export const insights: Insight[] = [
+  {
+    id: "ins_7c3rt",
+    queryId: "qry_5r1tz",
+    title: "Northfield MSA — Auto-Renewal Clause Confirmed",
+    summary: "The MSA with Northfield Health Systems (executed 2024-03-01) contains an auto-renewal provision under §12.4: contract renews for successive 12-month terms unless either party provides 60 days' written notice prior to expiration.",
+    sourceCitations: ["Northfield_MSA_2024-03.pdf §12.4", "Northfield_MSA_2024-03.pdf §12.1"],
+    groundednessScore: 94,
+    pinnedBy: "Sofia Reyes",
+    createdAt: "2026-03-07T11:15:00Z",
+  },
+  {
+    id: "ins_3p8kw",
+    queryId: "qry_2c8jb",
+    title: "GDPR Data Retention — EU Customer Records",
+    summary: "Per Art. 5(1)(e) GDPR and our internal DPA (Section 4), EU customer PII must be deleted within 30 days of account closure. Pseudonymized analytics data may be retained for up to 36 months for legitimate business purposes.",
+    sourceCitations: ["GDPR_DPA_Internal_v3.pdf §4", "Compliance_Policy_2025.pdf §8.2"],
+    groundednessScore: 96,
+    pinnedBy: "Derek Okonkwo",
+    createdAt: "2026-03-07T12:30:00Z",
+  },
+  {
+    id: "ins_9a1bm",
+    queryId: "qry_4n6sw",
+    title: "Q3 2025 Earnings — Key Takeaways",
+    summary: "Revenue grew 18.4% YoY to $84.7M; operating margin expanded 210bps to 22.3%. Management guided Q4 revenue at $88–91M. Gross margin compressed 80bps due to infrastructure cost increases, offset by productivity gains in R&D.",
+    sourceCitations: ["Q3_2025_Earnings_Transcript.pdf p.4", "Q3_2025_Earnings_Transcript.pdf p.11", "Investor_Supplement_Q3.pdf"],
+    groundednessScore: 92,
+    pinnedBy: "Noah Brandt",
+    createdAt: "2026-03-07T13:18:00Z",
+  },
+  {
+    id: "ins_0d6nv",
+    queryId: "qry_r4e9s",
+    title: "SOC 2 Type II — Access Control Findings (2024)",
+    summary: "Audit identified 3 access control observations: (1) stale service account credentials not rotated within policy window; (2) off-boarded contractor retained S3 read access for 14 days post-exit; (3) MFA enforcement gap for legacy VPN users. All remediated as of 2024-Q4.",
+    sourceCitations: ["SOC2_TypeII_Audit_2024.pdf §5.2", "SOC2_TypeII_Audit_2024.pdf §5.4", "Remediation_Log_2024.pdf"],
+    groundednessScore: 97,
+    pinnedBy: "Derek Okonkwo",
+    createdAt: "2026-03-05T10:45:00Z",
+  },
+  {
+    id: "ins_6m2wq",
+    queryId: "qry_l0w3c",
+    title: "Cascade Logistics — Indemnification Clause Summary",
+    summary: "Three active contracts with Cascade Logistics Inc. all include mutual indemnification for direct damages. Contract CLG-2022-07 (Master Services) caps indemnification at 12 months of fees paid. CLG-2023-11 (Data Processing Addendum) contains uncapped indemnification for IP infringement and data breach scenarios — flagged for legal review.",
+    sourceCitations: ["Cascade_MSA_CLG-2022-07.pdf §14", "Cascade_DPA_CLG-2023-11.pdf §9.3", "Cascade_SOW-001.pdf §11"],
+    groundednessScore: 90,
+    pinnedBy: "Sofia Reyes",
+    createdAt: "2026-03-04T14:35:00Z",
+  },
+  {
+    id: "ins_4r9px",
+    queryId: "qry_0w4mk",
+    title: "Enterprise Deal Cycle — Q4 2025 Benchmark",
+    summary: "Median enterprise deal cycle in Q4 2025 was 94 days (up from 81 days in Q3). Top-of-funnel to proposal averaged 31 days; proposal to legal 28 days; legal to close 35 days. Multi-stakeholder deals (5+ contacts) averaged 127 days.",
+    sourceCitations: ["Salesforce_CRM_Export_Q4.csv — 48 closed-won records", "Deal_Velocity_Report_Q4.pdf"],
+    groundednessScore: 88,
+    pinnedBy: "Priya Nair",
+    createdAt: "2026-03-06T15:44:00Z",
+  },
+  {
+    id: "ins_8j0dy",
+    queryId: "qry_s9b6r",
+    title: "2024 Annual Report — Revenue Growth Drivers",
+    summary: "Enterprise tier grew 31% YoY driven by 3 large fintech expansions (Meridian Capital, Vantage Analytics, Northfield Health). SMB segment declined 4% YoY reflecting market headwinds. Platform add-ons (API access, compliance module) contributed $12.4M, up 67% YoY.",
+    sourceCitations: ["Annual_Report_2024.pdf p.18", "Annual_Report_2024.pdf p.22", "Revenue_Breakdown_Supplement.xlsx"],
+    groundednessScore: 93,
+    pinnedBy: "James Takahashi",
+    createdAt: "2026-03-03T16:02:00Z",
+  },
+];
+
+// ─── Chart Data: Query Volume (12 months) ─────────────────────────────────────
+// AI usage ramps through the year with enterprise rollout spikes; dips in Aug (vacations)
+
+export const queryVolumeByMonth: QueryVolumeDataPoint[] = [
+  { month: "Mar 25", queries: 4_218, failed: 134, hallucinationDetected: 89 },
+  { month: "Apr 25", queries: 4_841, failed: 147, hallucinationDetected: 98 },
+  { month: "May 25", queries: 5_284, failed: 159, hallucinationDetected: 102 },
+  { month: "Jun 25", queries: 5_712, failed: 174, hallucinationDetected: 118 },
+  { month: "Jul 25", queries: 6_104, failed: 182, hallucinationDetected: 127 },
+  { month: "Aug 25", queries: 5_488, failed: 167, hallucinationDetected: 109 },  // summer dip
+  { month: "Sep 25", queries: 7_214, failed: 201, hallucinationDetected: 141 },  // back-to-work surge
+  { month: "Oct 25", queries: 8_947, failed: 248, hallucinationDetected: 178 },  // Q4 enterprise rollout
+  { month: "Nov 25", queries: 10_412, failed: 287, hallucinationDetected: 204 }, // peak adoption
+  { month: "Dec 25", queries: 9_814, failed: 271, hallucinationDetected: 184 },  // holiday slowdown
+  { month: "Jan 26", queries: 12_481, failed: 318, hallucinationDetected: 221 }, // budget unlock + new pipelines
+  { month: "Feb 26", queries: 14_827, failed: 342, hallucinationDetected: 241 }, // continued ramp
+];
+
+// ─── Chart Data: Avg Groundedness (12 months) ─────────────────────────────────
+// Improves as retrieval tuning matures; minor dips when new connectors onboard
+
+export const groundednessByMonth: GroundednessDataPoint[] = [
+  { month: "Mar 25", avgGroundedness: 74.2, p10Groundedness: 52 },
+  { month: "Apr 25", avgGroundedness: 75.8, p10Groundedness: 53 },
+  { month: "May 25", avgGroundedness: 77.1, p10Groundedness: 55 },
+  { month: "Jun 25", avgGroundedness: 78.4, p10Groundedness: 57 },
+  { month: "Jul 25", avgGroundedness: 78.9, p10Groundedness: 57 },
+  { month: "Aug 25", avgGroundedness: 79.7, p10Groundedness: 59 },
+  { month: "Sep 25", avgGroundedness: 78.2, p10Groundedness: 55 },  // dip from new data source onboarding
+  { month: "Oct 25", avgGroundedness: 80.4, p10Groundedness: 60 },
+  { month: "Nov 25", avgGroundedness: 82.1, p10Groundedness: 62 },
+  { month: "Dec 25", avgGroundedness: 82.8, p10Groundedness: 63 },
+  { month: "Jan 26", avgGroundedness: 83.2, p10Groundedness: 64 },
+  { month: "Feb 26", avgGroundedness: 83.7, p10Groundedness: 65 },
+];
+
+// ─── Chart Data: Latency Distribution ─────────────────────────────────────────
+
+export const latencyDistribution: LatencyDistributionPoint[] = [
+  { bucket: "<1s", count: 2_847 },
+  { bucket: "1–2s", count: 4_312 },
+  { bucket: "2–4s", count: 5_184 },
+  { bucket: "4–6s", count: 1_847 },
+  { bucket: ">6s", count: 637 },
+];
+
+// ─── Chart Data: Cost by Pipeline (rolling 30 days) ───────────────────────────
+
+export const costByPipeline: CostByPipelinePoint[] = [
+  { pipeline: "Contract Review RAG", costUsd: 84.71, queryCount: 1_184 },
+  { pipeline: "Financial Report Summarizer", costUsd: 71.34, queryCount: 412 },
+  { pipeline: "Sales Insights Agent", costUsd: 58.42, queryCount: 3_847 },
+  { pipeline: "Customer Churn Analyst", costUsd: 47.18, queryCount: 2_214 },
+  { pipeline: "Compliance Doc Scanner", costUsd: 31.84, queryCount: 847 },
+  { pipeline: "HR Policy Q&A Agent", costUsd: 12.47, queryCount: 4_128 },
+  { pipeline: "Support Ticket Classifier", costUsd: 6.52, queryCount: 7_214 },
+];
+
+// ─── Chart Data: Groundedness by Model ────────────────────────────────────────
+
+export const groundednessByModel: GroundednessByModelPoint[] = [
+  { model: "claude-3.5-sonnet", avgGroundedness: 91.4, queryCount: 3_847, avgCostUsd: 0.0712 },
+  { model: "gpt-4o", avgGroundedness: 87.2, queryCount: 7_214, avgCostUsd: 0.0438 },
+  { model: "gpt-4o-mini", avgGroundedness: 78.4, queryCount: 5_412, avgCostUsd: 0.0031 },
+  { model: "claude-3-haiku", avgGroundedness: 74.8, queryCount: 9_412, avgCostUsd: 0.0019 },
+];
+
+// ─── Lookup Helpers ────────────────────────────────────────────────────────────
+
+export const getPipelineById = (id: string) =>
+  pipelines.find((p) => p.id === id);
+
+export const getDataSourceById = (id: string) =>
+  dataSources.find((ds) => ds.id === id);
+
+export const getDataSourcesByPipeline = (pipelineId: string) => {
+  const pipeline = getPipelineById(pipelineId);
+  if (!pipeline) return [];
+  return pipeline.dataSourceIds.map(getDataSourceById).filter(Boolean);
+};
+
+export const getQueriesByPipeline = (pipelineId: string) =>
+  queries.filter((q) => q.pipelineId === pipelineId);
+
+export const getQueriesByStatus = (status: Query["status"]) =>
+  queries.filter((q) => q.status === status);
+
+export const getTraceByQueryId = (queryId: string) =>
+  traces.find((t) => t.queryId === queryId);
+
+export const getInsightByQueryId = (queryId: string) =>
+  insights.find((i) => i.queryId === queryId);
+
+export const getLowGroundednessQueries = (threshold = 65) =>
+  queries.filter((q) => q.groundednessScore > 0 && q.groundednessScore < threshold);
+
+export const getActivePipelines = () =>
+  pipelines.filter((p) => p.status === "active");
+
+export const getDegradedDataSources = () =>
+  dataSources.filter(
+    (ds) => ds.status === "Degraded" || ds.status === "Disconnected" || ds.status === "Embedding Stale"
+  );

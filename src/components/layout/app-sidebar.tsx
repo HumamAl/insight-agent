@@ -6,7 +6,12 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { APP_CONFIG } from "@/lib/config";
 import {
-  LayoutDashboard,
+  Terminal,
+  GitBranch,
+  Database,
+  Sparkles,
+  Activity,
+  ClipboardCheck,
   ChevronLeft,
   ChevronRight,
   Lightbulb,
@@ -23,9 +28,12 @@ import {
 // ═══════════════════════════════════════════════════════════════════════════
 
 const navItems = [
-  { href: "/", label: "Dashboard", icon: LayoutDashboard },
-  // Dashboard Builder agent: add 3-5 feature page nav items here.
-  // Example: { href: "/orders", label: "Orders", icon: ShoppingCart },
+  { href: "/", label: "Query Studio", icon: Terminal },
+  { href: "/pipelines", label: "Agent Pipelines", icon: GitBranch },
+  { href: "/sources", label: "Data Sources", icon: Database },
+  { href: "/insights", label: "Insights Feed", icon: Sparkles },
+  { href: "/traces", label: "Traces", icon: Activity },
+  { href: "/evaluations", label: "Evaluations", icon: ClipboardCheck },
 ];
 
 function SidebarLogo({ collapsed }: { collapsed: boolean }) {
@@ -73,8 +81,8 @@ function SidebarNav({ collapsed }: { collapsed: boolean }) {
             className={cn(
               "flex items-center gap-3 px-3 rounded-md text-sm transition-colors duration-100",
               isActive
-                ? "bg-primary/8 text-primary font-medium"
-                : "text-muted-foreground hover:bg-[color:var(--surface-hover)]"
+                ? "bg-primary/15 text-primary font-medium"
+                : "text-white/50 hover:text-white/80 hover:bg-[color:var(--surface-hover)]"
             )}
           >
             <item.icon className="w-4 h-4 shrink-0" />
@@ -98,7 +106,7 @@ function SidebarCrossTabLinks({ collapsed }: { collapsed: boolean }) {
       <Link
         href="/challenges"
         style={{ paddingTop: "var(--nav-item-py)", paddingBottom: "var(--nav-item-py)" }}
-        className="flex items-center gap-3 px-3 rounded-md text-sm text-muted-foreground hover:bg-[color:var(--surface-hover)] transition-colors duration-100"
+        className="flex items-center gap-3 px-3 rounded-md text-sm text-white/40 hover:text-white/70 hover:bg-[color:var(--surface-hover)] transition-colors duration-100"
       >
         <Lightbulb className="w-4 h-4 shrink-0" />
         {!collapsed && <span>My Approach</span>}
@@ -106,7 +114,7 @@ function SidebarCrossTabLinks({ collapsed }: { collapsed: boolean }) {
       <Link
         href="/proposal"
         style={{ paddingTop: "var(--nav-item-py)", paddingBottom: "var(--nav-item-py)" }}
-        className="flex items-center gap-3 px-3 rounded-md text-sm text-muted-foreground hover:bg-[color:var(--surface-hover)] transition-colors duration-100"
+        className="flex items-center gap-3 px-3 rounded-md text-sm text-white/40 hover:text-white/70 hover:bg-[color:var(--surface-hover)] transition-colors duration-100"
       >
         <User className="w-4 h-4 shrink-0" />
         {!collapsed && <span>Work With Me</span>}
@@ -216,7 +224,7 @@ export function AppSidebar() {
       <div className="p-2 border-t border-border/60">
         <button
           onClick={() => setCollapsed(!collapsed)}
-          className="flex items-center gap-3 px-3 py-2 rounded-md text-sm text-muted-foreground hover:bg-[color:var(--surface-hover)] w-full transition-colors duration-100"
+          className="flex items-center gap-3 px-3 py-2 rounded-md text-sm text-white/40 hover:text-white/60 hover:bg-[color:var(--surface-hover)] w-full transition-colors duration-100"
           aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
         >
           {collapsed ? (
