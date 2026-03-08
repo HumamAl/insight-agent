@@ -1,6 +1,6 @@
 Hi,
 
-The gap between raw data and actionable intelligence usually isn't the NLP layer — it's the agent not knowing how to formulate intricate queries. Built this before reaching out: {VERCEL_URL}
+The gap between raw data and actionable intelligence usually isn't the NLP layer — it's the agent not knowing how to formulate intricate queries. Built this before reaching out: https://insight-agent-gamma.vercel.app
 
 Shows autonomous query chaining, structured insight extraction, and dataset navigation without hand-holding. Built on Claude API + n8n. Closest parallel: WMF Agent Dashboard — turned a 4-hour manual review into a 20-minute structured extraction pipeline.
 
